@@ -32,6 +32,6 @@ function createGitDirectory() {
 function readGitBlob(hash){
     const compressed_data = fs.readFileSync(path.join(process.cwd(), ".git", "objects",hash.slice(0,2),hash.slice(2)));
     const Data_Unzip = zlib.inflateSync(compressed_data);
-    const ans = Data_Unzip.to_string().split('\0')[1];
+    const ans = Data_Unzip.toString().split('\0')[1];
     process.stdout.write(ans);
 }
