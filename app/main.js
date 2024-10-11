@@ -13,9 +13,10 @@ switch (command) {
     createGitDirectory();
     break;
   case "cat-file":
-    const hash = process.argv[4];
-    readGitBlob(hash);
+    // const hash = process.argv[4];
+    readGitBlob();
     break;
+    //here
   default:
     throw new Error(`Unknown command ${command}`);
 }
@@ -29,7 +30,8 @@ function createGitDirectory() {
   console.log("Initialized git directory");
 }
 
-function readGitBlob(hash){
+function readGitBlob(){
+    const hash = process.argv[4];
     const compressed_data = fs.readFileSync(path.join(process.cwd(), ".git", "objects",hash.slice(0,2),hash.slice(2)));
     const Data_Unzip = zlib.inflateSync(compressed_data);
     const ans = Data_Unzip.toString().split('\0')[1];
