@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib")
-
+const crypto     = require("crypto")
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 // console.log("Logs from your program will appear here!");
 
@@ -15,6 +15,9 @@ switch (command) {
   case "cat-file":
     // const hash = process.argv[4];
     readGitBlob();
+    break;
+  case "hash-object":
+    hashGitObject();
     break;
     //here
   default:
@@ -36,4 +39,23 @@ function readGitBlob(){
     const Data_Unzip = zlib.inflateSync(compressed_data);
     const ans = Data_Unzip.toString().split('\0')[1];
     process.stdout.write(ans);
+}
+function hashGitObject(){
+    const file = process.argv[4];
+    const {size} = fs.statSync(file);
+    const data = fs.readFileSync(file);
+    const content= `blob ${size}\0{data.toString()}`;
+    const blobSHA = crypto.createHash('sha1').update(content).digest("hex");
+    const objDir = blobSHA.subString(0,2);
+    const objFile = blobSHA.subString(2);
+
+    fs.mkdirSync(path.join(process.cwd(), ".git","objects",objDir),{
+        recursive : true,
+    });
+    fs.writeFileSync(
+        path.join(process.cwd(),".git","objects",objDir,objFile),
+        zlib.deflateSync(content),
+    );
+    process.std.out(`${blob}\n`);
+
 }
