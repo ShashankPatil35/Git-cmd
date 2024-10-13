@@ -46,8 +46,8 @@ function hashGitObject(){
     const data = fs.readFileSync(file);
     const content= `blob ${size}\0{data.toString()}`;
     const blobSHA = crypto.createHash('sha1').update(content).digest("hex");
-    const objDir = blobSHA.subString(0,2);
-    const objFile = blobSHA.subString(2);
+    const objDir = blobSHA.substring(0,2);
+    const objFile = blobSHA.substring(2);
 
     fs.mkdirSync(path.join(process.cwd(), ".git","objects",objDir),{
         recursive : true,
@@ -58,5 +58,5 @@ function hashGitObject(){
     );
     process.std.out(`${blob}\n`);
 
-    
+
 }
