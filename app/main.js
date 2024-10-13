@@ -58,4 +58,5 @@ function hashGitObject(){
     );
     process.std.out(`${blob}\n`);
 
+    
 }
