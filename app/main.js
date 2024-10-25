@@ -1,11 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib")
-const crypto     = require("crypto")
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-// console.log("Logs from your program will appear here!");
+const crypto = require("crypto")
 
-// Uncomment this block to pass the first stage
 const command = process.argv[2];
 
 switch (command) {
@@ -13,13 +10,11 @@ switch (command) {
     createGitDirectory();
     break;
   case "cat-file":
-    // const hash = process.argv[4];
     readGitBlob();
     break;
   case "hash-object":
     hashGitObject();
     break;
-    //here
   default:
     throw new Error(`Unknown command ${command}`);
 }
@@ -40,23 +35,31 @@ function readGitBlob(){
     const ans = Data_Unzip.toString().split('\0')[1];
     process.stdout.write(ans);
 }
+
 function hashGitObject(){
-    const file = process.argv[4];
-    const {size} = fs.statSync(file);
-    const data = fs.readFileSync(file);
-    const content= `blob ${size}\0{data.toString()}`;
-    const blobSHA = crypto.createHash('sha1').update(content).digest("hex");
-    const objDir = blobSHA.substring(0,2);
-    const objFile = blobSHA.substring(2);
+  const writeCmd = process.argv[3];
+  const file = process.argv[4];
 
-    fs.mkdirSync(path.join(process.cwd(), ".git","objects",objDir),{
-        recursive : true,
-    });
-    fs.writeFileSync(
-        path.join(process.cwd(),".git","objects",objDir,objFile),
-        zlib.deflateSync(content),
-    );
-    process.std.out(`${blob}\n`);
+  if(writeCmd !== "-w") return;
 
+  let fileContents = fs.readFileSync(file,'binary');
+  fileContents = Buffer.from(fileContents.replace(/\r\n/g, "\n"),"binary");
+  // const content = fs.readFileSync(file);
+
+  const header= `blob ${fileContents.length}\x00`;
+  // console.log(header)
+  // const data = Buffer.concat([Buffer.from(header,'binary'), content]);
+  const data = Buffer.concat([Buffer.from(header,"binary"), fileContents]);
+  const hash = crypto.createHash("sha1").update(data).digest("hex");
+  
+  const objDirPath = path.join(__dirname, ".git","objects");
+  const hashDirPath = path.join(objDirPath,hash.slice(0,2));
+  const filePath = path.join(hashDirPath,hash.slice(2));
+
+  fs.mkdirSync(hashDirPath,{recursive:true});
+  fs.writeFileSync(
+     filePath, zlib.deflateSync(data));
+
+  console.log(hash);
 
 }
