@@ -15,6 +15,9 @@ switch (command) {
   case "hash-object":
     hashGitObject();
     break;
+  case "ls-tree":
+    lsTree();
+    break;
   default:
     throw new Error(`Unknown command ${command}`);
 }
@@ -59,7 +62,82 @@ function hashGitObject(){
   fs.mkdirSync(hashDirPath,{recursive:true});
   fs.writeFileSync(
      filePath, zlib.deflateSync(data));
-
   console.log(hash);
 
 }
+
+// function lsTree(){
+//   const isNameOnly = process.argv[3];
+//   let hash = '';
+//   if(isNameOnly === '--name-only'){
+//     hash = process.argv[4];
+//   }else{
+//     hash = process.argv[3];
+//   }
+
+//   if(!hash || hash.length !==40){
+//     console.error("Invalid or missing tree hash");
+//     return;
+//   }
+
+//   const dirName = hash.slice(0,2);
+//   const fileName = hash.slice(2);
+//   const objectPath = path.join(__dirname,'.git','objects', dirName, fileName);
+
+//   if(!fs.existsSync(objectPath)){
+//     console.error('Error : Tree object not found!');
+//     return;
+//   }
+//   // const compressed_data = fs.readFileSync(objectPath);
+//   // const inflated = zlib.inflateSync(compressed_data);
+
+//   // const enteries = inflated.toString().split('\x00');
+//   // const dataFromTree = enteries.slice(1);
+//   // const names = dataFromTree
+//   // .filter((line)=>line.includes(' '))
+//   // .map((line)=>line.split(' ')[1]);
+//   const compressedData = fs.readFileSync(objectPath);
+//   const inflated = zlib.inflateSync(compressedData);
+//   const entries = inflated.toString('utf-8').split('\x00').slice(1);
+
+//   const names = entries
+//     .filter((line) => line.includes(' '))
+//     .map((line) => line.split(' ')[2].trim());
+
+//   const response = names.join('\n').concat('\n').replace(/\n\n/g, '\n');
+//   process.stdout.write(response);
+//   console.log(response)
+
+// }
+
+function lsTree() {
+  const isNameOnly = process.argv[3];
+  let hash = '';
+
+  if (isNameOnly === '--name-only') {
+    hash = process.argv[4];
+  } else {
+    hash = process.argv[3];
+  }
+
+  const dirName = hash.slice(0, 2);
+  const fileName = hash.slice(2);
+  const objectPath = path.join(process.cwd(), '.git', 'objects', dirName, fileName);
+
+  if (!fs.existsSync(objectPath)) {
+    console.error('Error: Tree object not found!');
+    return;
+  }
+
+  const dataFromFile = fs.readFileSync(objectPath);
+  const inflated = zlib.inflateSync(dataFromFile);
+  const entries = inflated.toString('utf-8').split('\x00').slice(1);
+
+  const names = entries
+    .filter((line) => line.includes(' '))
+    .map((line) => line.split(' ')[1]);
+  
+  const response = names.join('\n').concat('\n').replace(/\n\n/g, '\n');
+  process.stdout.write(response);
+}
+// hashGitObject();
