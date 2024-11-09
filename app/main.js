@@ -203,12 +203,12 @@ function CommitTree(){
     const commitMessage = process.argv[7];
 
 
-
+    const currentTimestamp = Math.floor(Date.now() / 1000);
     const commitContentBuffer = Buffer.concat([
       Buffer.from(`tree ${treeSHA}\n`),
       Buffer.from(`parent ${ParentCommitSHA}\n`),
-      Buffer.from(`Author: ShashankPatil35 <shashankmpatil3535@gmail.com> ${Math.floor(Date.now() / 1000)} +0000\n`),
-      Buffer.from(`Commiter: ShashankPatil35 <shashankmpatil3535@gmail.com> ${Math.floor(Date.now() / 1000)} +0000\n\n`),
+      Buffer.from(`Author: ShashankPatil35 <shashankmpatil3535@gmail.com> ${currentTimestamp} +0000\n`),
+      Buffer.from(`Commiter: ShashankPatil35 <shashankmpatil3535@gmail.com> ${currentTimestamp} +0000\n\n`),
       Buffer.from(`${commitMessage}\n`)      
     ]);
     const header = `commit ${commitContentBuffer.length}\0`;
