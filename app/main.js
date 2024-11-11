@@ -232,43 +232,4 @@ function CommitTree(){
   process.stdout.write(commitHash);
 }
 
-// function CommitTree() {
-//   const treeSHA = process.argv[3];
-//   const commitSHA = process.argv[5] || ''; // If there is no parent commit
-//   const commitMessage = process.argv[7];
-
-//   const author = `Author: ShashankPatil35 <shashankmpatil3535@gmail.com> ${Math.floor(Date.now() / 1000)} +0000`;
-//   const committer = author;
-
-//   // Build the commit data
-//   let data = `tree ${treeSHA}\n`;
-
-//   if (commitSHA)
-//     data += `parent ${commitSHA}\n`;
-
-//   data += `${author}\n${committer}\n\n${commitMessage}`;
-
-//   // Build the header with the correct length
-//   const header = `commit ${data.length}\0`;
-//   const commitObject = header + data;
-
-//   // Calculate commit hash
-//   const commitHash = crypto.createHash("sha1").update(commitObject).digest("hex");
-
-//   // Prepare directory and file path for the object
-//   const folder = commitHash.slice(0, 2);
-//   const file = commitHash.slice(2);
-//   const completeFolderPath = path.join(process.cwd(), ".git", "objects", folder);
-
-//   if (!fs.existsSync(completeFolderPath)) {
-//       fs.mkdirSync(completeFolderPath, { recursive: true });
-//   }
-
-//   // Compress commit object
-//   const compressedData = zlib.deflateSync(Buffer.from(commitObject));
-//   fs.writeFileSync(path.join(completeFolderPath, file), compressedData);
-
-//   // Output commit hash
-//   process.stdout.write(commitHash);
-// }
 
