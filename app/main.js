@@ -28,6 +28,7 @@ switch (command) {
     throw new Error(`Unknown command ${command}`);
 }
 
+//init
 function createGitDirectory() {
   fs.mkdirSync(path.join(process.cwd(), ".git"), { recursive: true });
   fs.mkdirSync(path.join(process.cwd(), ".git", "objects"), { recursive: true });
@@ -37,6 +38,7 @@ function createGitDirectory() {
   console.log("Initialized git directory");
 }
 
+//cat-file
 function readGitBlob(){
     const hash = process.argv[4];
     const compressed_data = fs.readFileSync(path.join(process.cwd(), ".git", "objects",hash.slice(0,2),hash.slice(2)));
@@ -45,6 +47,7 @@ function readGitBlob(){
     process.stdout.write(ans);
 }
 
+// hash-object
 function hashGitObject(){
   const writeCmd = process.argv[3];
   const file = process.argv[4];
@@ -59,19 +62,21 @@ function hashGitObject(){
   // console.log(header)
   // const data = Buffer.concat([Buffer.from(header,'binary'), content]);
   const data = Buffer.concat([Buffer.from(header,"binary"), fileContents]);
+  //Buffers are often used when dealing with raw data that is not in a readable string format
+  // If you're reading an image file or working with compressed data, you need a way to directly interact with the binary data without any string encoding. This is where Buffers come in.
   const hash = crypto.createHash("sha1").update(data).digest("hex");
   
   const objDirPath = path.join(__dirname, ".git","objects");
   const hashDirPath = path.join(objDirPath,hash.slice(0,2));
   const filePath = path.join(hashDirPath,hash.slice(2));
-
+  // console.log(filePath);
   fs.mkdirSync(hashDirPath,{recursive:true});
-  fs.writeFileSync(
-     filePath, zlib.deflateSync(data));
+  fs.writeFileSync(filePath, zlib.deflateSync(data));
   console.log(hash);
 
 }
 
+// ls-tree
 function lsTree() {
   const isNameOnly = process.argv[3];
   let hash = '';
@@ -192,11 +197,14 @@ function recursiveCreateTree(basepath) {
   return hash;
 }
 
+
+// write-tree
 function writeTree() {
   const hash = recursiveCreateTree('./');
   console.log("Tree Hash:", hash);
 }
 
+//commit-tree
 function CommitTree(){
     const treeSHA = process.argv[3];
     const ParentCommitSHA = process.argv[5]; //parent wala
@@ -214,9 +222,7 @@ function CommitTree(){
     const header = `commit ${commitContentBuffer.length}\0`;
 
     const commitBuffer = Buffer.concat([Buffer.from(header),commitContentBuffer]);
-
-
-
+    
     const commitHash = crypto.createHash("sha1").update(commitBuffer).digest("hex");
 
   const folder = commitHash.slice(0,2);
